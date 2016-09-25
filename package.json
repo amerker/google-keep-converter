@@ -5,7 +5,7 @@
   },
   "version": "0.1.0",
   "description": "Convert Google Keep notes to sensible file formats like JSON and CSV.",
-  "main": "lib/index.js",
+  "main": "index.js",
   "author": "Antonio Merker <antonio.merker@gmail.com>",
   "repository": {
     "type": "git",
