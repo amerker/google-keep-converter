@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 const cheerio = require('cheerio');
 const he = require('he');
@@ -22,7 +20,9 @@ const extractFromDOM = (dir, filename) => {
 
   if (!content.length) {
     return null;
-  } else if (content.find('div.listitem').length) {
+  }
+
+  if (content.find('div.listitem').length) {
     // Keep Note type: list
     content = content
       .find('div.text')

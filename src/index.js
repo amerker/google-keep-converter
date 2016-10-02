@@ -1,17 +1,21 @@
-'use strict';
+#!/usr/bin/env node
 
 const program = require('commander');
+const chalk = require('chalk');
 
 const renamer = require('./renamer');
 const scraper = require('./scraper');
 const saver = require('./saver');
 
 const dir = './Keep/';
+const error = chalk.bold.red;
+const log = chalk.bold.cyan;
+const warn = chalk.green;
 
 program
   .description('Convert Google Keep notes to sensible file formats like JSON (default) and CSV.')
   .option('-f, --fix', 'fix naming of HTML files (workaround for Google Takeout bug)')
-  .option('-c, --csv', 'save data as CSV file (additionally)')
+  .option('-c, --csv', 'save data as CSV file (in addition to JSON)')
   .parse(process.argv);
 
 const metrics = {
@@ -29,8 +33,7 @@ if (program.fix) {
   try {
     metrics.renamedFiles = renamer.renameToHtml(dir);
   } catch (e) {
-    console.error('Error:', e.message);
-    console.error('Something went wrong while fixing the HTML filenames.');
+    console.error(error(`Error: ${e.message}`));
     process.exit(1);
   }
 }
@@ -44,8 +47,11 @@ try {
   notes = scrapeResult.notes;
   metrics.scrapedFiles = notes.length;
 } catch (e) {
-  console.error('Error:', e.message);
-  console.error('Make sure to put the Keep HTML files into ./Keep/');
+  if (e.code === 'ENOENT') {
+    console.error(error(`Error: No ${dir} directory found!`));
+  } else {
+    console.error(error(`Error: ${e.message}`));
+  }
   process.exit(1);
 }
 
@@ -55,22 +61,19 @@ if (notes.length) {
   try {
     savedFiles = saver.writeFile(notes, program.csv);
   } catch (e) {
-    console.error('Error:', e.message);
-    console.error('Something went wrong while writing the output.');
+    console.error(error(`Error: ${e.message}`));
     process.exit(1);
   }
 }
 
 // === result info ===
 
-console.log(`- Renamed ${metrics.renamedFiles} files`);
-console.log(`- Scraped ${metrics.scrapedFiles} / ${metrics.triedFiles} files`);
+console.log(log(`- Renamed ${metrics.renamedFiles} files`));
+console.log(log(`- Scraped ${metrics.scrapedFiles} / ${metrics.triedFiles} files`));
 if (failedFiles.length) {
-  console.log('- Failed files:');
-  failedFiles.forEach(ff =>
-    console.log(`  > ${ff}`)
-  );
+  console.warn(warn('- Failed files:'));
+  failedFiles.forEach(ff => console.warn(warn(`  > ${ff}`)));
 }
-console.log(`- Data saved to "${savedFiles.join('" and "')}"`);
+console.log(log(`- Data saved to "${savedFiles.join('" and "')}"`));
 
 // GitHub: https://github.com/amerker

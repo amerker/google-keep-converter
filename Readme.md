@@ -3,12 +3,12 @@ This script lets you scrape and convert Google Keep notes into sensible, reusabl
 Installation:
 
 1. Install Node.js on your machine
-2. Run `npm install`
+2. Run `npm install -g google-keep-converter`
 3. Get your Google Keep data via Google Takeout -- there is no other way for now -- and extract the ./Takeout/Keep/ folder.
 
-Usage: `node index.js [options]`
+Usage: `google-keep-converter [options]`
 
-The output is saved to keep-notes-[timestring].json: in chronological order, UTF8-encoded, with \n linebreaks. 
+The output is saved to keep-notes-[timestring].json: to the current dir, in chronological order, UTF8-encoded, with \n linebreaks. 
 
 Options:
 
@@ -16,7 +16,7 @@ Options:
 | --- | --- |
 | -h, --help | output usage information |
 | -f, --fix | fix naming of HTML files (workaround for Google Takeout bug) |
-| -c, --csv | save to keep-notes-[timestring].csv (additionally) |
+| -c, --csv | save to keep-notes-[timestring].csv (in addition to JSON) |
 
 Note:
 If you have a bunch of files without proper file extension in your Keep folder, you have run into a Google Takeout bug.

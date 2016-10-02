@@ -5,7 +5,15 @@
   },
   "version": "0.1.0",
   "description": "Convert Google Keep notes to sensible file formats like JSON and CSV.",
-  "main": "index.js",
+  "preferGlobal": true,
+  "bin": {
+    "google-keep-converter": "dest/index.js"
+  },
+  "scripts": {
+    "transpile": "babel src -d dest",
+    "postinstall": "npm run transpile",
+    "lint": "eslint src/; exit 0"
+  },
   "author": "Antonio Merker <antonio.merker@gmail.com>",
   "repository": {
     "type": "git",
@@ -14,19 +22,20 @@
   "license": "ISC",
   "homepage": "https://github.com/amerker/google-keep-converter",
   "dependencies": {
+    "chalk": "1.1.3",
     "cheerio": "0.22.0",
     "commander": "git+https://github.com/tj/commander.js.git",
     "he": "1.1.0",
-    "json2csv": "3.6.3",
-    "moment": "2.15.0"
+    "json2csv": "3.7.0",
+    "moment": "2.15.1"
   },
   "devDependencies": {
     "babel-cli": "6.14.0",
-    "babel-preset-es2015": "^6.14.0",
-    "eslint": "3.6.0",
-    "eslint-config-airbnb": "11.1.0",
-    "eslint-plugin-import": "1.15.0",
-    "eslint-plugin-jsx-a11y": "2.2.2",
-    "eslint-plugin-react": "6.3.0"
+    "babel-preset-es2015": "^6.16.0",
+    "eslint": "^3.7.0",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^1.16.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-react": "^6.3.0"
   }
 }

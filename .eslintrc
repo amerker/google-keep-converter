@@ -1,5 +1,6 @@
 {
   "extends": "airbnb",
+
   "env": {
     "node": true,
     "es6": true
@@ -9,7 +10,6 @@
     "sourceType": "script"
   },
   "rules": {
-    "strict": ["error", "global"],
     "no-console": 0
   }
 }
