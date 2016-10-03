@@ -11,7 +11,6 @@
   },
   "scripts": {
     "transpile": "babel src -d dest",
-    "postinstall": "npm run transpile",
     "prepublish": "npm run transpile",
     "lint": "eslint src/; exit 0"
   },
