@@ -19,6 +19,14 @@
     "type": "git",
     "url": "git://github.com/amerker/google-keep-converter"
   },
+  "keywords": [
+    "google",
+    "keep",
+    "google keep",
+    "converter",
+    "scraper",
+    "cli"
+  ],
   "license": "ISC",
   "homepage": "https://github.com/amerker/google-keep-converter",
   "dependencies": {
