@@ -12,7 +12,9 @@
   "scripts": {
     "transpile": "babel src -d dest",
     "prepublish": "npm run transpile",
-    "lint": "eslint src/; exit 0"
+    "lint": "eslint src/; exit 0",
+    "test": "ava",
+    "test:watch": "ava --watch"
   },
   "author": "Antonio Merker <antonio.merker@gmail.com>",
   "repository": {
@@ -38,12 +40,21 @@
     "moment": "2.15.1"
   },
   "devDependencies": {
+    "ava": "0.16.0",
     "babel-cli": "6.14.0",
     "babel-preset-es2015": "^6.16.0",
     "eslint": "^3.7.0",
     "eslint-config-airbnb": "^12.0.0",
     "eslint-plugin-import": "^1.16.0",
     "eslint-plugin-jsx-a11y": "^2.2.2",
-    "eslint-plugin-react": "^6.3.0"
+    "eslint-plugin-react": "^6.3.0",
+    "mock-fs": "3.11.0",
+    "sinon": "1.17.6"
+  },
+  "ava": {
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
   }
 }
