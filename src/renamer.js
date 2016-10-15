@@ -7,7 +7,7 @@ const renameToHtml = (dir) => {
   files
     .filter(f => !f.match(/\.(html|jpg|png)$/))
     .forEach((f) => {
-      fs.rename(dir + f, `${dir}${f}.html`);
+      fs.rename(`${dir}/${f}`, `${dir}/${f}.html`);
       renamedFiles += 1;
     });
 

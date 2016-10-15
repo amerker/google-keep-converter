@@ -4,7 +4,10 @@ import * as he from 'he';
 import moment from 'moment';
 
 const extractFromDOM = (dir, filename) => {
-  const $ = cheerio.load(fs.readFileSync(dir + filename, 'utf8'), { normalizeWhitespace: true, decodeEntities: false });
+  const $ = cheerio.load(fs.readFileSync(`${dir}/${filename}`, 'utf8'), {
+    normalizeWhitespace: true,
+    decodeEntities: false,
+  });
 
   const keepNote = $('.note');
 

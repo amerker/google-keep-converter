@@ -8,7 +8,7 @@ import renameToHtml from './renamer';
 import scrapeKeepNotes from './scraper';
 import writeFile from './saver';
 
-const dirsToCheck = ['./Takeout/Keep/', './Keep/', './'];
+const dirsToCheck = ['./Takeout/Keep', './Keep', '.'];
 
 const error = chalk.bold.red;
 const log = chalk.bold.green;

@@ -37,19 +37,18 @@ test('no dirs found', (t) => {
 });
 
 test('single existing dir', (t) => {
-  t.is(findDir(['./']), './');
+  t.is(findDir(['.']), '.');
 });
 
 test('mixed missing and existing dirs', (t) => {
-  t.is(findDir(['foo', './']), './');
+  t.is(findDir(['foo', '.']), '.');
 });
 
-test('multiple existing dirs', (t) => {
-  t.is(findDir(['./Keep', './']), './Keep');
-});
-
-test('different syntaxes for existing dir', (t) => {
+test('multiple existing dirs & different syntaxes', (t) => {
+  t.plan(3);
+  t.is(findDir(['./Keep', '.']), './Keep');
   t.is(findDir(['Keep', './Keep']), 'Keep');
+  t.is(findDir(['Keep/', './Keep/']), 'Keep/');
 });
 
 test.after('cleanup', () => {
