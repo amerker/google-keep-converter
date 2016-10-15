@@ -1,6 +1,6 @@
-const fs = require('fs');
+import fs from 'fs';
 
-exports.renameToHtml = (dir) => {
+const renameToHtml = (dir) => {
   const files = fs.readdirSync(dir);
 
   let renamedFiles = 0;
@@ -13,3 +13,5 @@ exports.renameToHtml = (dir) => {
 
   return renamedFiles;
 };
+
+export default renameToHtml;

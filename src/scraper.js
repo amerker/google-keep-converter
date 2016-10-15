@@ -1,7 +1,7 @@
-const fs = require('fs');
-const cheerio = require('cheerio');
-const he = require('he');
-const moment = require('moment');
+import fs from 'fs';
+import cheerio from 'cheerio';
+import * as he from 'he';
+import moment from 'moment';
 
 const extractFromDOM = (dir, filename) => {
   const $ = cheerio.load(fs.readFileSync(dir + filename, 'utf8'), { normalizeWhitespace: true, decodeEntities: false });
@@ -43,7 +43,7 @@ const extractFromDOM = (dir, filename) => {
   return { date, title, content, filename };
 };
 
-exports.scrapeKeepNotes = (dir) => {
+const scrapeKeepNotes = (dir) => {
   const files = fs.readdirSync(dir);
   const notes = [];
   const failFiles = [];
@@ -80,3 +80,5 @@ exports.scrapeKeepNotes = (dir) => {
     failFiles,
   };
 };
+
+export default scrapeKeepNotes;

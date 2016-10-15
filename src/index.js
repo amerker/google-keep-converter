@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const chalk = require('chalk');
+import program from 'commander';
+import chalk from 'chalk';
 
-const dirFinder = require('./dir-finder');
-const renamer = require('./renamer');
-const scraper = require('./scraper');
-const saver = require('./saver');
+import findDir from './dir-finder';
+import renameToHtml from './renamer';
+import scrapeKeepNotes from './scraper';
+import writeFile from './saver';
 
 const dirsToCheck = ['./Takeout/Keep/', './Keep/', './'];
 
@@ -33,7 +33,7 @@ let failedFiles = [];
 
 let dir;
 try {
-  dir = dirFinder.findDir(dirsToCheck);
+  dir = findDir(dirsToCheck);
   console.log(log(`- Using directory ${dir}`));
 } catch (e) {
   console.error(error(`Error: ${e.message}`));
@@ -44,7 +44,7 @@ try {
 
 if (program.fix) {
   try {
-    metrics.renamedFiles = renamer.renameToHtml(dir);
+    metrics.renamedFiles = renameToHtml(dir);
     console.log(log(`- Renamed ${metrics.renamedFiles} files`));
   } catch (e) {
     console.error(error(`Error: ${e.message}`));
@@ -55,7 +55,7 @@ if (program.fix) {
 // === scrape ===
 
 try {
-  const scrapeResult = scraper.scrapeKeepNotes(dir);
+  const scrapeResult = scrapeKeepNotes(dir);
   metrics.triedFiles = scrapeResult.htmlFileNum;
   failedFiles = scrapeResult.failFiles;
   notes = scrapeResult.notes;
@@ -75,7 +75,7 @@ try {
 
 if (notes.length) {
   try {
-    savedFiles = saver.writeFile(notes, program.csv);
+    savedFiles = writeFile(notes, program.csv);
     console.log(log(`- Data saved to "${savedFiles.join('" and "')}"`));
   } catch (e) {
     console.error(error(`Error: ${e.message}`));

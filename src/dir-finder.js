@@ -1,6 +1,6 @@
-const fs = require('fs');
+import fs from 'fs';
 
-exports.findDir = (dirsToCheck) => {
+const findDir = (dirsToCheck) => {
   const foundDir = dirsToCheck.find((d) => {
     try {
       fs.lstatSync(d);
@@ -16,3 +16,5 @@ exports.findDir = (dirsToCheck) => {
 
   return foundDir;
 };
+
+export default findDir;

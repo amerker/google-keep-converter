@@ -1,6 +1,6 @@
-const fs = require('fs');
-const json2csv = require('json2csv');
-const moment = require('moment');
+import fs from 'fs';
+import json2csv from 'json2csv';
+import moment from 'moment';
 
 const baseFilename = `keep-notes-${moment().format('YYYY-MM-DD-HHmm')}`;
 
@@ -17,10 +17,12 @@ const saveCsv = (notes = []) => {
   return filename;
 };
 
-exports.writeFile = (notes = [], hasCsvOutput = false) => {
+const writeFile = (notes = [], hasCsvOutput = false) => {
   const savedTo = [saveJson(notes)];
   if (hasCsvOutput) {
     savedTo.push(saveCsv(notes));
   }
   return savedTo;
 };
+
+export default writeFile;
