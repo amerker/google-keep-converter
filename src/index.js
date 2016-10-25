@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import findDir from './dir-finder';
 import renameToHtml from './renamer';
 import scrapeKeepNotes from './scraper';
-import { writeFile } from './saver';
+import writeFile from './saver';
 
 const dirsToCheck = ['./Takeout/Keep', './Keep', '.'];
 
