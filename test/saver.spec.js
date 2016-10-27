@@ -10,7 +10,7 @@ test.before('prep', () => {
   mock();
 });
 
-test('Only JSON file is written and matches with input data', (t) => {
+test('only JSON file is written and matches with input data', (t) => {
   t.plan(2);
   writeFile(notesStub, false, 'foo');
 

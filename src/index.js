@@ -21,9 +21,9 @@ program
   .parse(process.argv);
 
 const metrics = {
-  renamedFiles: 0,
-  triedFiles: 0,
-  scrapedFiles: 0,
+  renamedFileNum: 0,
+  triedFileNum: 0,
+  scrapedFileNum: 0,
 };
 let notes = [];
 let savedFiles = [];
@@ -44,8 +44,8 @@ try {
 
 if (program.fix) {
   try {
-    metrics.renamedFiles = renameToHtml(dir);
-    console.log(log(`- Renamed ${metrics.renamedFiles} files`));
+    metrics.renamedFileNum = renameToHtml(dir);
+    console.log(log(`- Renamed ${metrics.renamedFileNum} files`));
   } catch (e) {
     console.error(error(`Error: ${e.message}`));
     process.exit(1);
@@ -55,13 +55,10 @@ if (program.fix) {
 // === scrape ===
 
 try {
-  const scrapeResult = scrapeKeepNotes(dir);
-  metrics.triedFiles = scrapeResult.htmlFileNum;
-  failedFiles = scrapeResult.failFiles;
-  notes = scrapeResult.notes;
-  metrics.scrapedFiles = notes.length;
+  ({ notes, triedFileNum: metrics.triedFileNum, failFiles: failedFiles } = scrapeKeepNotes(dir));
+  metrics.scrapedFileNum = notes.length;
 
-  console.log(log(`- Scraped ${metrics.scrapedFiles} / ${metrics.triedFiles} files`));
+  console.log(log(`- Scraped ${metrics.scrapedFileNum} / ${metrics.triedFileNum} files`));
   if (failedFiles.length) {
     console.warn(warn('- Failed files:'));
     failedFiles.forEach(ff => console.warn(warn(`  > ${ff}`)));

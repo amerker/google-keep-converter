@@ -79,7 +79,7 @@ const scrapeKeepNotes = (dir) => {
 
   return {
     notes,
-    htmlFileNum: htmlFiles.length,
+    triedFileNum: htmlFiles.length,
     failFiles,
   };
 };
