@@ -14,7 +14,9 @@
     "prepublish": "npm run transpile",
     "lint": "eslint src/; exit 0",
     "test": "ava",
-    "test:watch": "ava --watch"
+    "test:watch": "ava --watch",
+    "cover": "nyc ava",
+    "report": "nyc report --reporter=html"
   },
   "author": "Antonio Merker <antonio.merker@gmail.com>",
   "repository": {
@@ -50,6 +52,7 @@
     "eslint-plugin-jsx-a11y": "^2.2.2",
     "eslint-plugin-react": "^6.3.0",
     "mock-fs": "3.11.0",
+    "nyc": "8.3.2",
     "sinon": "1.17.6"
   },
   "babel": {

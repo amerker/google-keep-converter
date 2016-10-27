@@ -4,13 +4,13 @@ import moment from 'moment';
 
 const BASE_FILENAME = `keep-notes-${moment().format('YYYY-MM-DD-HHmm')}`;
 
-const saveJson = (notes = [], baseFilename) => {
+const saveJson = (notes, baseFilename) => {
   const filename = `${baseFilename}.json`;
   fs.writeFileSync(filename, JSON.stringify(notes, null, 4), 'utf8');
   return filename;
 };
 
-const saveCsv = (notes = [], baseFilename) => {
+const saveCsv = (notes, baseFilename) => {
   const filename = `${baseFilename}.csv`;
   const csvData = json2csv({ data: notes });
   fs.writeFileSync(filename, csvData, 'utf8');

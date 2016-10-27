@@ -45,7 +45,6 @@ test('mixed missing and existing dirs', (t) => {
 });
 
 test('multiple existing dirs & different syntaxes', (t) => {
-  t.plan(3);
   t.is(findDir(['./Keep', '.']), './Keep');
   t.is(findDir(['Keep', './Keep']), 'Keep');
   t.is(findDir(['Keep/', './Keep/']), 'Keep/');
