@@ -9,6 +9,8 @@ const testDates = {
   invalid: 'Feb 29, 1970, 25:67:89 XM',
 };
 const datePattern = 'MMM D, YYYY, h:mm:ss A';
+const valid1970Date = moment(testDates.valid1970, datePattern, true).toISOString();
+const valid2016Date = moment(testDates.valid2016, datePattern, true).toISOString();
 
 test.before('prep', () => {
   mock({
@@ -20,41 +22,74 @@ test.before('prep', () => {
       'foo.html': '',
       'bar.txt': '',
     },
-    './MixedNotes': {
-      '1.html': `
+    './TextNotes': {
+      'goodTextNote.html': `
         <div class="note">
-          <div class="heading">${testDates.valid2016}</div>
+          <div class="heading">${testDates.valid1970}</div>
           <div class="title">foo</div>
           <div class="content">fooContent</div>
         </div>`,
-      '2.html': `
+      'badTextNote.html': `
         <div class="note">
           <div class="heading">${testDates.invalid}</div>
           <div class="titleBad">bar</div>
           <div class="contentBad">barContent</div>
         </div>`,
-      '3.html': `
+      'salvageableTextNote.html': `
         <div class="note">
           <div class="heading">${testDates.invalid}</div>
           <div class="title">baz</div>
           <div class="content">bazContent</div>
         </div>`,
-      '4.html': `
+      'singleLabeledTextNote.html': `
         <div class="note">
-          <div class="heading">${testDates.valid1970}</div>
+          <div class="heading">${testDates.valid2016}</div>
           <div class="title">qux</div>
-          <div class="content">
-            <div class="listitem">
-              <div class="bullet">&#9744;</div>
-              <div class="text">listItem</div>
-            </div>
+          <div class="content">qux</div>
+          <div class="labels">
+            <span class="label">quxLabel</span>
           </div>
         </div>`,
-      '5.html': `
+      'multiLabeledTextNote.html': `
         <div class="note">
           <div class="heading">${testDates.valid2016}</div>
           <div class="title">quux</div>
           <div class="content">quux</div>
+          <div class="labels">
+            <span class="label">quuxFirstLabel</span>
+            <span class="label">quuxSecondLabel</span>
+          </div>
+        </div>`,
+    },
+    './ListNotes': {
+      'singleListItemNoteWithLabel.html': `
+        <div class="note">
+          <div class="heading">${testDates.valid2016}</div>
+          <div class="title">corge</div>
+          <div class="content">
+            <div class="listitem">
+              <div class="bullet">&#9744;</div>
+              <div class="text">corgeSingleItem</div>
+            </div>
+          </div>
+          <div class="labels">
+            <span class="label">corgeLabel</span>
+          </div>
+        </div>`,
+      'multiListItemNote.html': `
+        <div class="note">
+          <div class="heading">${testDates.valid1970}</div>
+          <div class="title">grault</div>
+          <div class="content">
+            <div class="listitem">
+              <div class="bullet">&#9744;</div>
+              <div class="text">graultFirstItem</div>
+            </div>
+            <div class="listitem">
+              <div class="bullet">&#9744;</div>
+              <div class="text">graultSecondItem</div>
+            </div>
+          </div>
         </div>`,
     },
   });
@@ -86,38 +121,59 @@ test('one empty html file', (t) => {
   t.is(failFiles.length, 1);
 });
 
-test('unordered notes with mixed quality levels', (t) => {
-  const valid1970Date = moment(testDates.valid1970, datePattern, true).toISOString();
-  const valid2016Date = moment(testDates.valid2016, datePattern, true).toISOString();
-  const { notes, triedFileNum, failFiles } = scrapeKeepNotes('./MixedNotes');
+test('text notes', (t) => {
+  const { notes, triedFileNum, failFiles } = scrapeKeepNotes('./TextNotes');
   t.deepEqual(notes, [
     {
       date: valid1970Date,
-      title: 'qux',
-      content: 'listItem',
-      filename: '4.html',
+      title: 'foo',
+      content: 'fooContent',
+      filename: 'goodTextNote.html',
     },
     {
       date: valid2016Date,
-      title: 'foo',
-      content: 'fooContent',
-      filename: '1.html',
+      title: 'qux',
+      content: 'qux',
+      labels: ['quxLabel'],
+      filename: 'singleLabeledTextNote.html',
     },
     {
       date: valid2016Date,
       title: 'quux',
       content: 'quux',
-      filename: '5.html',
+      labels: ['quuxFirstLabel', 'quuxSecondLabel'],
+      filename: 'multiLabeledTextNote.html',
     },
     {
       date: 'Invalid date',
       title: 'baz',
       content: 'bazContent',
-      filename: '3.html',
+      filename: 'salvageableTextNote.html',
     },
   ]);
   t.is(triedFileNum, 5);
   t.is(failFiles.length, 1);
+});
+
+test('list notes', (t) => {
+  const { notes, triedFileNum, failFiles } = scrapeKeepNotes('./ListNotes');
+  t.deepEqual(notes, [
+    {
+      date: valid1970Date,
+      title: 'grault',
+      content: 'graultFirstItem\ngraultSecondItem',
+      filename: 'multiListItemNote.html',
+    },
+    {
+      date: valid2016Date,
+      title: 'corge',
+      content: 'corgeSingleItem',
+      filename: 'singleListItemNoteWithLabel.html',
+      labels: ['corgeLabel'],
+    },
+  ]);
+  t.is(triedFileNum, 2);
+  t.is(failFiles.length, 0);
 });
 
 test.after('cleanup', () => {

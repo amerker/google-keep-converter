@@ -19,31 +19,47 @@ const extractFromDOM = (dir, filename) => {
 
   const date = moment(keepDate, 'MMM D, YYYY, h:mm:ss A', true).toISOString();
   const title = keepNote.find('.title').text().trim();
-  let content = keepNote.find('.content');
+  const contentRoot = keepNote.find('.content');
+  let content = '';
+  let labels = [];
 
-  if (!content.length) {
+  if (!contentRoot.length) {
     return null;
   }
 
-  if (content.find('div.listitem').length) {
+  if (contentRoot.find('div.listitem').length) {
     // Keep Note type: list
-    content = content
+    content = contentRoot
       .find('div.text')
       .map((v, i) => $(i).html().trim())
       .get()
       .join('\n');
   } else {
     // Keep Note type: normal text
-    content = content
+    content = contentRoot
       .html()
       .split(/<br>/)
       .join('\n');
   }
 
+  if (keepNote.find('div.labels').length) {
+    labels = keepNote
+      .find('span.label')
+      .map((v, i) => $(i).html().trim())
+      .get();
+  }
+
   // decode HTML entities with he as cheerio has issues with that
   content = he.decode(content);
+  labels.map(label => he.decode(label));
 
-  return { date, title, content, filename };
+  const keepObject = { date, title, content };
+  if (labels.length) {
+    keepObject.labels = labels;
+  }
+  keepObject.filename = filename;
+
+  return keepObject;
 };
 
 const scrapeKeepNotes = (dir) => {
@@ -71,10 +87,8 @@ const scrapeKeepNotes = (dir) => {
   notes.sort((a, b) => {
     if (a.date < b.date) {
       return -1;
-    } else if (a.date > b.date) {
-      return 1;
     }
-    return 0;
+    return 1;
   });
 
   return {
