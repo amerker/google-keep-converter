@@ -46,8 +46,12 @@ test.before('prep', () => {
           <div class="heading">${testDates.valid2016}</div>
           <div class="title">qux</div>
           <div class="content">qux</div>
-          <div class="labels">
-            <span class="label">quxLabel</span>
+          <div class="chips">
+            <span class="chip label">
+              <span class="label-name">
+                quxLabel
+              </span>
+            </span>
           </div>
         </div>`,
       'multiLabeledTextNote.html': `
@@ -55,9 +59,13 @@ test.before('prep', () => {
           <div class="heading">${testDates.valid2016}</div>
           <div class="title">quux</div>
           <div class="content">quux</div>
-          <div class="labels">
-            <span class="label">quuxFirstLabel</span>
-            <span class="label">quuxSecondLabel</span>
+          <div class="chips">
+            <span class="chip label">
+              <span class="label-name">quuxFirstLabel</span>
+            </span>
+            <span class="chip label">
+              <span class="label-name">quuxSecondLabel</span>
+            </span>
           </div>
         </div>`,
     },
@@ -67,13 +75,17 @@ test.before('prep', () => {
           <div class="heading">${testDates.valid2016}</div>
           <div class="title">corge</div>
           <div class="content">
-            <div class="listitem">
-              <div class="bullet">&#9744;</div>
-              <div class="text">corgeSingleItem</div>
-            </div>
+            <ul class="list">
+              <li class="listitem">
+                <span class="bullet">☐</span>
+                <span class="text">corgeSingleItem</span>
+              </li>
+            </ul>
           </div>
-          <div class="labels">
-            <span class="label">corgeLabel</span>
+          <div class="chips">
+            <span class="chip label">
+              <span class="label-name">corgeLabel</span>
+            </span>
           </div>
         </div>`,
       'multiListItemNote.html': `
@@ -81,14 +93,16 @@ test.before('prep', () => {
           <div class="heading">${testDates.valid1970}</div>
           <div class="title">grault</div>
           <div class="content">
-            <div class="listitem">
-              <div class="bullet">&#9744;</div>
-              <div class="text">graultFirstItem</div>
-            </div>
-            <div class="listitem">
-              <div class="bullet">&#9744;</div>
-              <div class="text">graultSecondItem</div>
-            </div>
+            <ul class="list">
+              <li class="listitem">
+                <span class="bullet">☐</span>
+                <span class="text">graultFirstItem</span>
+              </li>
+              <li class="listitem">
+                <span class="bullet">☐</span>
+                <span class="text">graultSecondItem</span>
+              </li>
+            </ul>
           </div>
         </div>`,
     },

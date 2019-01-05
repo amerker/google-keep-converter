@@ -17,9 +17,9 @@ const extractFromDOM = (dir, filename) => {
 
   const keepDate = keepNote.find('.heading').text().trim();
 
-  const date = moment(keepDate, 'MMM D, YYYY, h:mm:ss A', true).toISOString();
-  const title = keepNote.find('.title').text().trim();
   const contentRoot = keepNote.find('.content');
+  const date = moment(keepDate, 'MMM D, YYYY, h:mm:ss A', true).toISOString();
+  let title = keepNote.find('.title').text().trim();
   let content = '';
   let labels = [];
 
@@ -27,10 +27,10 @@ const extractFromDOM = (dir, filename) => {
     return null;
   }
 
-  if (contentRoot.find('div.listitem').length) {
+  if (contentRoot.find('li.listitem').length) {
     // Keep Note type: list
     content = contentRoot
-      .find('div.text')
+      .find('span.text')
       .map((v, i) => $(i).html().trim())
       .get()
       .join('\n');
@@ -42,16 +42,17 @@ const extractFromDOM = (dir, filename) => {
       .join('\n');
   }
 
-  if (keepNote.find('div.labels').length) {
+  if (keepNote.find('div.chips').length) {
     labels = keepNote
-      .find('span.label')
+      .find('span.label-name')
       .map((v, i) => $(i).html().trim())
       .get();
   }
 
   // decode HTML entities with he as cheerio has issues with that
+  title = he.decode(title);
   content = he.decode(content);
-  labels.map(label => he.decode(label));
+  labels = labels.map(label => he.decode(label));
 
   const keepObject = { date, title, content };
   if (labels.length) {
