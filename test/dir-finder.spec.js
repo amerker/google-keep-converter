@@ -1,6 +1,6 @@
 import test from 'ava';
 import mock from 'mock-fs';
-import findDir from '../src/dir-finder';
+import findDir from '../src/dir-finder.js';
 
 test.before('prep', () => {
   mock({ './Keep': {} });
@@ -21,19 +21,19 @@ test('dirList has wrong type', (t) => {
 test('dirList is empty array', (t) => {
   t.throws(() => {
     findDir([]);
-  }, 'NODIR');
+  }, { message: 'NODIR' });
 });
 
 test('dirList contains empty string', (t) => {
   t.throws(() => {
     findDir(['']);
-  }, 'NODIR');
+  }, { message: 'NODIR' });
 });
 
 test('no dirs found', (t) => {
   t.throws(() => {
     findDir(['foo', '', 'bar']);
-  }, 'NODIR');
+  }, { message: 'NODIR' });
 });
 
 test('single existing dir', (t) => {

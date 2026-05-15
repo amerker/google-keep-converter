@@ -1,7 +1,10 @@
 import test from 'ava';
 import mock from 'mock-fs';
-import moment from 'moment';
-import scrapeKeepNotes from '../src/scraper';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat.js';
+import scrapeKeepNotes from '../src/scraper.js';
+
+dayjs.extend(customParseFormat);
 
 const testDates = {
   valid2016: 'Dec 31, 2016, 11:59:59 PM',
@@ -9,8 +12,8 @@ const testDates = {
   invalid: 'Feb 29, 1970, 25:67:89 XM',
 };
 const datePattern = 'MMM D, YYYY, h:mm:ss A';
-const valid1970Date = moment(testDates.valid1970, datePattern, true).toISOString();
-const valid2016Date = moment(testDates.valid2016, datePattern, true).toISOString();
+const valid1970Date = dayjs(testDates.valid1970, datePattern, true).toISOString();
+const valid2016Date = dayjs(testDates.valid2016, datePattern, true).toISOString();
 
 test.before('prep', () => {
   mock({
@@ -104,7 +107,7 @@ test('bad directory names', (t) => {
 test('empty dir', (t) => {
   t.throws(() => {
     scrapeKeepNotes('./EmptyDir');
-  }, 'Directory empty!');
+  }, { message: 'Directory empty!' });
 });
 
 test('no html files', (t) => {
@@ -132,17 +135,17 @@ test('text notes', (t) => {
     },
     {
       date: valid2016Date,
-      title: 'qux',
-      content: 'qux',
-      labels: ['quxLabel'],
-      filename: 'singleLabeledTextNote.html',
-    },
-    {
-      date: valid2016Date,
       title: 'quux',
       content: 'quux',
       labels: ['quuxFirstLabel', 'quuxSecondLabel'],
       filename: 'multiLabeledTextNote.html',
+    },
+    {
+      date: valid2016Date,
+      title: 'qux',
+      content: 'qux',
+      labels: ['quxLabel'],
+      filename: 'singleLabeledTextNote.html',
     },
     {
       date: 'Invalid date',

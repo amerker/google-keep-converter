@@ -1,6 +1,6 @@
 import test from 'ava';
 import mock from 'mock-fs';
-import renameToHtml from '../src/renamer';
+import renameToHtml from '../src/renamer.js';
 
 test.before('prep', () => {
   mock({
@@ -28,7 +28,7 @@ test('dir has wrong type', (t) => {
 test('dir doesn\'t exist', (t) => {
   t.throws(() => {
     renameToHtml('./Takeout');
-  });
+  }, { any: true });
 });
 
 test('one renamable file', (t) => {

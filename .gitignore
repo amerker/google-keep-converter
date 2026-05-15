@@ -40,3 +40,6 @@ dest/
 
 # default script output files
 keep-notes-*
+
+# local AI context
+CLAUDE.md

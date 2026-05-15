@@ -1,11 +1,13 @@
 import fs from 'fs';
-import cheerio from 'cheerio';
-import * as he from 'he';
-import moment from 'moment';
+import { load } from 'cheerio';
+import he from 'he';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat.js';
+
+dayjs.extend(customParseFormat);
 
 const extractFromDOM = (dir, filename) => {
-  const $ = cheerio.load(fs.readFileSync(`${dir}/${filename}`, 'utf8'), {
-    normalizeWhitespace: true,
+  const $ = load(fs.readFileSync(`${dir}/${filename}`, 'utf8'), {
     decodeEntities: false,
   });
 
@@ -17,7 +19,8 @@ const extractFromDOM = (dir, filename) => {
 
   const keepDate = keepNote.find('.heading').text().trim();
 
-  const date = moment(keepDate, 'MMM D, YYYY, h:mm:ss A', true).toISOString();
+  const parsed = dayjs(keepDate, 'MMM D, YYYY, h:mm:ss A', true);
+  const date = parsed.isValid() ? parsed.toISOString() : 'Invalid date';
   const title = keepNote.find('.title').text().trim();
   const contentRoot = keepNote.find('.content');
   let content = '';
@@ -85,10 +88,9 @@ const scrapeKeepNotes = (dir) => {
     });
 
   notes.sort((a, b) => {
-    if (a.date < b.date) {
-      return -1;
-    }
-    return 1;
+    if (a.date < b.date) return -1;
+    if (a.date > b.date) return 1;
+    return 0;
   });
 
   return {
