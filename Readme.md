@@ -1,32 +1,67 @@
-# Google Keep Converter
+# google-keep-converter
 
-> This script lets you scrape and convert Google Keep notes into sensible, reusable file formats, such as JSON and CSV.
+> Migrate your Google Keep notes to Markdown — ready for [Obsidian](https://obsidian.md), [Logseq](https://logseq.com), [Notion](https://notion.so), or any Markdown-based tool.
 
-Installation:
+Each note becomes an individual `.md` file with YAML frontmatter. List notes get `- [ ]` / `- [x]` checkboxes. Labels become tags. A CSV export is also available.
 
-1. Install Node.js on your machine
-2. Run `npm install -g google-keep-converter`
-3. Get your Google Keep data via Google Takeout -- there is no other way for now -- and extract the folder.
-4. Run the script somewhere within that folder structure.
+## Requirements
 
-This script first checks if the subdirectories ./Takeout/Keep/ or ./Keep/ exist, and prefers them if so.
-The output is saved to keep-notes-[timestring].json: to the current dir, in chronological order, UTF8-encoded, with \n linebreaks. 
+- Node.js >= 24
+- A Google Keep export from [Google Takeout](https://takeout.google.com) (select "Keep")
+
+## Installation
+
+```sh
+npm install -g google-keep-converter
+```
 
 ## Usage
 
-`google-keep-converter [options]`
+1. Export your Google Keep data via [Google Takeout](https://takeout.google.com) and extract the archive
+2. Navigate to the folder containing your Keep export (or anywhere within it)
+3. Run:
 
-### Options
+```sh
+google-keep-converter
+```
 
-| Command | Description |
-| --- | --- |
-| -h, --help | output usage information |
-| -f, --fix | fix naming of HTML files (workaround for Google Takeout bug) |
-| -c, --csv | save to keep-notes-[timestring].csv (in addition to JSON) |
+The tool searches for your notes in `./Takeout/Keep/`, `./Keep/`, or the current directory — in that order.
 
-### Note
+Output is saved to a new `keep-notes-YYYY-MM-DD-HHmm/` folder in the current directory, one `.md` file per note.
 
-If you have a bunch of files without proper file extension in your Keep folder, you have run into a Google Takeout bug:
-It seems that if a note title ends in a period and digit (e.g. "Ideas for Industry 5.0"), the filename is truncated.
+## Options
 
-Use the --fix option to give those files an ".html" extension, to be properly processed by this script.
+| Option | Description |
+|---|---|
+| `--csv` | Also export a `keep-notes-YYYY-MM-DD-HHmm.csv` file |
+| `--trashed` | Include trashed notes (excluded by default) |
+| `--output <dir>` | Write Markdown files to a custom directory |
+| `-h, --help` | Show help |
+
+## Output format
+
+### Markdown
+
+```markdown
+---
+title: "Shopping list"
+created: 2024-03-15T10:30:00.000Z
+updated: 2024-11-01T14:22:00.000Z
+tags: ["groceries"]
+color: GREEN
+---
+
+- [ ] Milk
+- [x] Eggs
+- [ ] Bread
+```
+
+Text notes, list notes (with checked/unchecked state), labels, color, pinned and archived status are all preserved. Notes with image or audio attachments include a reference to the attachment file.
+
+### CSV
+
+When `--csv` is passed, a single CSV file is written alongside the Markdown folder. Columns: `title`, `created`, `updated`, `content`, `labels`, `color`, `isPinned`, `isArchived`, `sourceFile`.
+
+## How it works
+
+Google Takeout exports Keep notes as both `.html` and `.json` files. This tool reads the `.json` files, which contain clean structured data: plain-text content, machine-readable timestamps, checked state for list items, labels, and metadata. No HTML parsing.
