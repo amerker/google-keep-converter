@@ -1,37 +1,45 @@
 import fs from 'fs';
-import dayjs from 'dayjs';
+import path from 'path';
+import { toMarkdown, toFilename } from './formatter/markdown.js';
+import { toCsv } from './formatter/csv.js';
 
-const BASE_FILENAME = `keep-notes-${dayjs().format('YYYY-MM-DD-HHmm')}`;
-
-const saveJson = (notes, baseFilename) => {
-  const filename = `${baseFilename}.json`;
-  fs.writeFileSync(filename, JSON.stringify(notes, null, 4), 'utf8');
-  return filename;
+const timestamp = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
 };
 
-const toCsvRow = (headers, obj) => {
-  return headers.map(h => {
-    const val = obj[h];
-    const str = Array.isArray(val) ? val.join('; ') : String(val ?? '');
-    return /[,"\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
-  }).join(',');
-};
+const writeMarkdown = (notes, outputDir) => {
+  fs.mkdirSync(outputDir, { recursive: true });
+  const seen = new Set();
 
-const saveCsv = (notes, baseFilename) => {
-  const filename = `${baseFilename}.csv`;
-  const data = Array.isArray(notes) ? notes : [notes];
-  const headers = data.length ? Object.keys(data[0]) : [];
-  const rows = [headers.join(','), ...data.map(n => toCsvRow(headers, n))];
-  fs.writeFileSync(filename, rows.join('\n'), 'utf8');
-  return filename;
-};
-
-const writeFile = (notes = [], hasCsvOutput = false, baseFilename = BASE_FILENAME) => {
-  const savedTo = [saveJson(notes, baseFilename)];
-  if (hasCsvOutput) {
-    savedTo.push(saveCsv(notes, baseFilename));
+  for (const note of notes) {
+    let filename = toFilename(note);
+    if (seen.has(filename)) {
+      const ext = path.extname(filename);
+      const stem = path.basename(filename, ext);
+      let i = 2;
+      while (seen.has(`${stem}-${i}${ext}`)) i++;
+      filename = `${stem}-${i}${ext}`;
+    }
+    seen.add(filename);
+    fs.writeFileSync(path.join(outputDir, filename), toMarkdown(note), 'utf8');
   }
-  return savedTo;
 };
 
-export default writeFile;
+const writeFiles = (notes = [], { csv = false, outputDir } = {}) => {
+  const base = `keep-notes-${timestamp()}`;
+  const dir = outputDir ?? base;
+
+  writeMarkdown(notes, dir);
+
+  let csvFile = null;
+  if (csv) {
+    csvFile = `${base}.csv`;
+    fs.writeFileSync(csvFile, toCsv(notes), 'utf8');
+  }
+
+  return { outputDir: dir, mdCount: notes.length, csvFile };
+};
+
+export default writeFiles;
