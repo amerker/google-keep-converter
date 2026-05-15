@@ -1,48 +1,53 @@
 import test from 'ava';
 import fs from 'fs';
+import path from 'path';
 import mock from 'mock-fs';
-import dayjs from 'dayjs';
-import writeFile from '../src/saver.js';
+import writeFiles from '../src/saver.js';
 
-const notesStub = { 'foo': 'bar', 'baz': ['qux'] };
-
-test.before('prep', () => {
-  mock();
+const note = (title = 'Test') => ({
+  title,
+  created: '2024-01-01T00:00:00.000Z',
+  updated: '2024-06-01T12:00:00.000Z',
+  content: 'Hello',
+  listItems: null,
+  labels: [],
+  color: 'DEFAULT',
+  isPinned: false,
+  isArchived: false,
+  attachments: [],
+  annotations: [],
+  sourceFile: `${title.toLowerCase()}.json`,
 });
 
-test('empty JSON file is written', (t) => {
-  const baseFilename = `keep-notes-${dayjs().format('YYYY-MM-DD-HHmm')}`;
-  writeFile();
+test.before(() => mock());
+test.after(() => mock.restore());
 
-  const fileContent = fs.readFileSync(`${baseFilename}.json`, 'utf-8');
-  t.deepEqual(JSON.parse(fileContent), []);
-
-  t.false(fs.existsSync(`${baseFilename}.csv`));
+test('creates output directory and writes markdown files', (t) => {
+  const { outputDir, mdCount } = writeFiles([note('Alpha')], { outputDir: 'out-test' });
+  t.is(outputDir, 'out-test');
+  t.is(mdCount, 1);
+  t.true(fs.existsSync(path.join('out-test', 'Alpha.md')));
 });
 
-test('only JSON file is written and matches with input data', (t) => {
-  writeFile(notesStub, false, 'foo');
-
-  const fileContent = fs.readFileSync('foo.json', 'utf-8');
-  t.deepEqual(JSON.parse(fileContent), notesStub);
-
-  t.false(fs.existsSync('foo.csv'));
+test('handles duplicate filenames by appending a counter', (t) => {
+  writeFiles([note('Dupe'), note('Dupe')], { outputDir: 'out-dupe' });
+  t.true(fs.existsSync(path.join('out-dupe', 'Dupe.md')));
+  t.true(fs.existsSync(path.join('out-dupe', 'Dupe-2.md')));
 });
 
-test('JSON and CSV files are written and match with input data', (t) => {
-  writeFile(notesStub, true, 'bar');
-
-  const jsonFileContent = fs.readFileSync('bar.json', 'utf-8');
-  t.deepEqual(JSON.parse(jsonFileContent), notesStub);
-
-  t.notThrows(() => {
-    fs.lstatSync('bar.csv');
-  });
-
-  const csvFileContent = fs.readFileSync('bar.csv', 'utf-8');
-  t.is(csvFileContent, 'foo,baz\nbar,qux');
+test('writes csv file when csv option is true', (t) => {
+  const { csvFile } = writeFiles([note('Beta')], { outputDir: 'out-csv', csv: true });
+  t.truthy(csvFile);
+  t.true(fs.existsSync(csvFile));
 });
 
-test.after('cleanup', () => {
-  mock.restore();
+test('no csv file by default', (t) => {
+  const { csvFile } = writeFiles([note('Gamma')], { outputDir: 'out-nocsv' });
+  t.is(csvFile, null);
+});
+
+test('empty notes array creates empty output directory', (t) => {
+  const { mdCount } = writeFiles([], { outputDir: 'out-empty' });
+  t.is(mdCount, 0);
+  t.true(fs.existsSync('out-empty'));
 });

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-import program from 'commander';
+import { program } from 'commander';
 import chalk from 'chalk';
 
 import findDir from './dir-finder.js';
-import renameToHtml from './renamer.js';
-import scrapeKeepNotes from './scraper.js';
-import writeFile from './saver.js';
+import parseKeepExport from './parser.js';
+import writeFiles from './saver.js';
 
 const dirsToCheck = ['./Takeout/Keep', './Keep', '.'];
 
@@ -15,69 +14,50 @@ const log = chalk.bold.green;
 const warn = chalk.gray;
 
 program
-  .description('Convert Google Keep notes to sensible file formats like JSON (default) and CSV.')
-  .option('-f, --fix', 'fix naming of HTML files (workaround for Google Takeout bug)')
-  .option('-c, --csv', 'save data as CSV file (in addition to JSON)')
+  .description('Migrate Google Keep notes to Markdown (and optionally CSV).')
+  .option('--csv', 'also export a CSV file')
+  .option('--trashed', 'include trashed notes (excluded by default)')
+  .option('--output <dir>', 'output directory for Markdown files')
   .parse(process.argv);
 
-const metrics = {
-  renamedFileNum: 0,
-  triedFileNum: 0,
-  scrapedFileNum: 0,
-};
-let notes = [];
-let savedFiles = [];
-let failedFiles = [];
-
-// === find correct dir ===
+const opts = program.opts();
 
 let dir;
 try {
   dir = findDir(dirsToCheck);
-  console.log(log(`- Using directory ${dir}`));
+  console.log(log(`- Using directory: ${dir}`));
 } catch (e) {
   console.error(error(`Error: ${e.message}`));
   process.exit(1);
 }
 
-// === rename ===
-
-if (program.opts().fix) {
-  try {
-    metrics.renamedFileNum = renameToHtml(dir);
-    console.log(log(`- Renamed ${metrics.renamedFileNum} files`));
-  } catch (e) {
-    console.error(error(`Error: ${e.message}`));
-    process.exit(1);
-  }
+let notes;
+try {
+  notes = parseKeepExport(dir);
+} catch (e) {
+  console.error(error(`Error: ${e.message}`));
+  process.exit(1);
 }
 
-// === scrape ===
+if (!opts.trashed) {
+  const before = notes.length;
+  notes = notes.filter(n => !n.isTrashed);
+  const skipped = before - notes.length;
+  if (skipped) console.log(warn(`- Skipped ${skipped} trashed note${skipped !== 1 ? 's' : ''}`));
+}
+
+console.log(log(`- Parsed ${notes.length} note${notes.length !== 1 ? 's' : ''}`));
+
+if (!notes.length) {
+  console.log(warn('- No notes to export.'));
+  process.exit(0);
+}
 
 try {
-  ({ notes, triedFileNum: metrics.triedFileNum, failFiles: failedFiles } = scrapeKeepNotes(dir));
-  metrics.scrapedFileNum = notes.length;
-
-  console.log(log(`- Scraped ${metrics.scrapedFileNum} / ${metrics.triedFileNum} files`));
-  if (failedFiles.length) {
-    console.warn(warn('- Failed files:'));
-    failedFiles.forEach(ff => console.warn(warn(`  > ${ff}`)));
-  }
+  const { outputDir, mdCount, csvFile } = writeFiles(notes, { csv: opts.csv, outputDir: opts.output });
+  console.log(log(`- Saved ${mdCount} Markdown file${mdCount !== 1 ? 's' : ''} to ${outputDir}/`));
+  if (csvFile) console.log(log(`- CSV saved to ${csvFile}`));
 } catch (e) {
   console.error(error(`Error: ${e.message}`));
   process.exit(1);
 }
-
-// === save ===
-
-if (notes.length) {
-  try {
-    savedFiles = writeFile(notes, program.opts().csv);
-    console.log(log(`- Data saved to "${savedFiles.join('" and "')}"`));
-  } catch (e) {
-    console.error(error(`Error: ${e.message}`));
-    process.exit(1);
-  }
-}
-
-// GitHub: https://github.com/amerker
