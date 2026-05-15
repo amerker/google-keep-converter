@@ -1,8 +1,7 @@
 import fs from 'fs';
-import json2csv from 'json2csv';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
-const BASE_FILENAME = `keep-notes-${moment().format('YYYY-MM-DD-HHmm')}`;
+const BASE_FILENAME = `keep-notes-${dayjs().format('YYYY-MM-DD-HHmm')}`;
 
 const saveJson = (notes, baseFilename) => {
   const filename = `${baseFilename}.json`;
@@ -10,10 +9,20 @@ const saveJson = (notes, baseFilename) => {
   return filename;
 };
 
+const toCsvRow = (headers, obj) => {
+  return headers.map(h => {
+    const val = obj[h];
+    const str = Array.isArray(val) ? val.join('; ') : String(val ?? '');
+    return /[,"\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+  }).join(',');
+};
+
 const saveCsv = (notes, baseFilename) => {
   const filename = `${baseFilename}.csv`;
-  const csvData = json2csv({ data: notes });
-  fs.writeFileSync(filename, csvData, 'utf8');
+  const data = Array.isArray(notes) ? notes : [notes];
+  const headers = data.length ? Object.keys(data[0]) : [];
+  const rows = [headers.join(','), ...data.map(n => toCsvRow(headers, n))];
+  fs.writeFileSync(filename, rows.join('\n'), 'utf8');
   return filename;
 };
 

@@ -3,10 +3,10 @@
 import program from 'commander';
 import chalk from 'chalk';
 
-import findDir from './dir-finder';
-import renameToHtml from './renamer';
-import scrapeKeepNotes from './scraper';
-import writeFile from './saver';
+import findDir from './dir-finder.js';
+import renameToHtml from './renamer.js';
+import scrapeKeepNotes from './scraper.js';
+import writeFile from './saver.js';
 
 const dirsToCheck = ['./Takeout/Keep', './Keep', '.'];
 
@@ -42,7 +42,7 @@ try {
 
 // === rename ===
 
-if (program.fix) {
+if (program.opts().fix) {
   try {
     metrics.renamedFileNum = renameToHtml(dir);
     console.log(log(`- Renamed ${metrics.renamedFileNum} files`));
@@ -72,7 +72,7 @@ try {
 
 if (notes.length) {
   try {
-    savedFiles = writeFile(notes, program.csv);
+    savedFiles = writeFile(notes, program.opts().csv);
     console.log(log(`- Data saved to "${savedFiles.join('" and "')}"`));
   } catch (e) {
     console.error(error(`Error: ${e.message}`));

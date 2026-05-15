@@ -1,9 +1,8 @@
 import test from 'ava';
 import fs from 'fs';
 import mock from 'mock-fs';
-import json2csv from 'json2csv';
-import moment from 'moment';
-import writeFile from '../src/saver';
+import dayjs from 'dayjs';
+import writeFile from '../src/saver.js';
 
 const notesStub = { 'foo': 'bar', 'baz': ['qux'] };
 
@@ -12,15 +11,13 @@ test.before('prep', () => {
 });
 
 test('empty JSON file is written', (t) => {
-  const baseFilename = `keep-notes-${moment().format('YYYY-MM-DD-HHmm')}`;
+  const baseFilename = `keep-notes-${dayjs().format('YYYY-MM-DD-HHmm')}`;
   writeFile();
 
   const fileContent = fs.readFileSync(`${baseFilename}.json`, 'utf-8');
   t.deepEqual(JSON.parse(fileContent), []);
 
-  t.throws(() => {
-    fs.lstatSync(`${baseFilename}.csv`);
-  });
+  t.false(fs.existsSync(`${baseFilename}.csv`));
 });
 
 test('only JSON file is written and matches with input data', (t) => {
@@ -29,9 +26,7 @@ test('only JSON file is written and matches with input data', (t) => {
   const fileContent = fs.readFileSync('foo.json', 'utf-8');
   t.deepEqual(JSON.parse(fileContent), notesStub);
 
-  t.throws(() => {
-    fs.lstatSync('foo.csv');
-  });
+  t.false(fs.existsSync('foo.csv'));
 });
 
 test('JSON and CSV files are written and match with input data', (t) => {
@@ -45,7 +40,7 @@ test('JSON and CSV files are written and match with input data', (t) => {
   });
 
   const csvFileContent = fs.readFileSync('bar.csv', 'utf-8');
-  t.is(csvFileContent, json2csv({ data: notesStub }));
+  t.is(csvFileContent, 'foo,baz\nbar,qux');
 });
 
 test.after('cleanup', () => {
