@@ -4,7 +4,15 @@ import path from 'path';
 const toISO = (usec) => new Date(usec / 1000).toISOString();
 
 const parseNote = (dir, filename) => {
-  const raw = JSON.parse(fs.readFileSync(path.join(dir, filename), 'utf8'));
+  let raw;
+  try {
+    raw = JSON.parse(fs.readFileSync(path.join(dir, filename), 'utf8'));
+  } catch (e) {
+    throw new Error(`${filename}: ${e.message}`);
+  }
+  if (typeof raw.createdTimestampUsec !== 'number' || typeof raw.userEditedTimestampUsec !== 'number') {
+    throw new Error(`${filename}: missing required timestamp fields`);
+  }
   return {
     title: raw.title ?? '',
     created: toISO(raw.createdTimestampUsec),

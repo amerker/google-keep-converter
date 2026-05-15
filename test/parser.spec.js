@@ -40,6 +40,8 @@ test.before(() => {
       }),
       'older.json': note({ title: 'Older', userEditedTimestampUsec: 1600000000000000 }),
     },
+    './Malformed': { 'bad.json': '{ broken json' },
+    './NoTimestamps': { 'note.json': JSON.stringify({ color: 'DEFAULT', isTrashed: false, title: 'Bad' }) },
   });
 });
 
@@ -98,6 +100,16 @@ test('sorts by updated timestamp ascending', (t) => {
   const older = notes.findIndex(n => n.sourceFile === 'older.json');
   const newer = notes.findIndex(n => n.sourceFile === 'text.json');
   t.true(older < newer);
+});
+
+test('malformed JSON file throws with filename in message', (t) => {
+  const err = t.throws(() => parseKeepExport('./Malformed'));
+  t.true(err.message.includes('bad.json'));
+});
+
+test('missing timestamps throw with filename in message', (t) => {
+  const err = t.throws(() => parseKeepExport('./NoTimestamps'));
+  t.true(err.message.includes('note.json'));
 });
 
 test.after(() => mock.restore());
