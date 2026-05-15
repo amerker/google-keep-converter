@@ -1,7 +1,7 @@
 import path from 'path';
 
-const sanitize = (str) =>
-  str.replace(/[<>:"/\\|?*\x00-\x1f]/g, '').trim().replace(/\s+/g, '-').slice(0, 100);
+// eslint-disable-next-line no-control-regex
+const sanitize = (str) => str.replace(/[<>:"/\\|?*\x00-\x1f]/g, '').trim().replace(/\s+/g, '-').slice(0, 100);
 
 export const toFilename = (note) => {
   const stem = note.title ? sanitize(note.title) : path.basename(note.sourceFile, '.json');
