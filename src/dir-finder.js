@@ -5,7 +5,7 @@ const findDir = (dirsToCheck) => {
     try {
       fs.lstatSync(d);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   });
